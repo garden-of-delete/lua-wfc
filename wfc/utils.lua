@@ -55,15 +55,32 @@ function M.deep_copy(obj, seen)
     return setmetatable(res, getmetatable(obj))
 end
 
--- Seeded random number generator
+-- Isolated seeded random number generator (xorshift64)
+-- Avoids polluting global math.random state
 function M.create_random(seed)
-    math.randomseed(seed)
+    -- Ensure seed is a non-zero integer
+    local state = seed
+    if state == 0 then state = 1 end
+
+    local function xorshift64()
+        -- Lua 5.3 has native 64-bit integers
+        state = state ~ (state << 13)
+        state = state ~ (state >> 7)
+        state = state ~ (state << 17)
+        return state
+    end
+
     return {
         next = function()
-            return math.random()
+            -- Return float in [0, 1)
+            -- Right-shift by 11 to get 53 bits (double precision mantissa)
+            -- Lua 5.3 >> is logical shift, always fills with zeros, so result is non-negative
+            local v = xorshift64() >> 11
+            return v * (1.0 / (1 << 53))
         end,
         next_int = function(max)
-            return math.random(0, max - 1)
+            local v = xorshift64() >> 1  -- logical shift makes it non-negative
+            return v % max
         end
     }
 end

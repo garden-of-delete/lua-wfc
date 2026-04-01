@@ -24,7 +24,7 @@ for _, config in ipairs(samples) do
         width = config.size,
         height = config.size,
         periodic = config.periodic or false,
-        samples_path = "/Users/rstolz/lua/WaveFunctionCollapse/samples"
+        samples_path = "samples"
     })
     
     print(string.format("  Model created: %dx%d grid, %d patterns", 

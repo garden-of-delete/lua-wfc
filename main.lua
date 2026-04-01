@@ -8,8 +8,8 @@ local SimpleTiledModel = require('simple_tiled_model')
 local OverlappingModel = require('overlapping_model')
 
 -- Configuration
-local TILESET_PATH = "/Users/rstolz/lua/WaveFunctionCollapse/tilesets"
-local SAMPLES_PATH = "/Users/rstolz/lua/WaveFunctionCollapse/samples"
+local TILESET_PATH = "tilesets"
+local SAMPLES_PATH = "samples"
 
 print([[
 Wave Function Collapse - Lua Implementation
