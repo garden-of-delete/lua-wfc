@@ -70,7 +70,7 @@ if model:run(seed, -1) then
 end
 ```
 
-### OSC Integration
+### OSC Integration (WIP, experimental)
 
 `send_to_sc.lua` sends OSC messages to SuperCollider (port 57120). Requires the `losc` package (`luarocks install --local losc`).
 
