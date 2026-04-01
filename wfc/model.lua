@@ -41,8 +41,9 @@ function Model.new(width, height, n, periodic, heuristic)
     self.sumsOfWeightLogWeights = nil
     self.entropies = nil
     
-    -- Stack for propagation
-    self.stack = nil
+    -- Stack for propagation (parallel arrays)
+    self.stack_i = nil
+    self.stack_t = nil
     self.stacksize = 0
     
     -- For scanline heuristic
@@ -96,9 +97,15 @@ function Model:init()
         self.entropies[i] = 0
     end
     
-    -- Initialize stack
-    self.stack = {}
+    -- Initialize stack (parallel arrays to avoid per-ban table allocation)
+    self.stack_i = {}
+    self.stack_t = {}
     self.stacksize = 0
+
+    self.distribution = {}
+    for t = 1, self.T do
+        self.distribution[t] = 0
+    end
 end
 
 function Model:run(seed, limit)
@@ -187,16 +194,16 @@ end
 
 function Model:observe(node, random)
     local w = self.wave[node]
-    
+    local distribution = self.distribution
+
     -- Build distribution from current wave state
-    local distribution = {}
     for t = 1, self.T do
         distribution[t] = w[t] and self.weights[t] or 0.0
     end
-    
+
     -- Select random pattern based on weights
     local r = utils.weighted_random(distribution, random.next())
-    
+
     -- Ban all patterns except the selected one
     for t = 1, self.T do
         if w[t] and t ~= r then
@@ -207,7 +214,8 @@ end
 
 function Model:propagate()
     while self.stacksize > 0 do
-        local i1, t1 = self.stack[self.stacksize][1], self.stack[self.stacksize][2]
+        local i1 = self.stack_i[self.stacksize]
+        local t1 = self.stack_t[self.stacksize]
         self.stacksize = self.stacksize - 1
         
         local x1 = (i1 - 1) % self.MX
@@ -271,7 +279,8 @@ function Model:ban(i, t)
     
     -- Add to propagation stack
     self.stacksize = self.stacksize + 1
-    self.stack[self.stacksize] = {i, t}
+    self.stack_i[self.stacksize] = i
+    self.stack_t[self.stacksize] = t
     
     -- Update entropy tracking
     self.sumsOfOnes[i] = self.sumsOfOnes[i] - 1

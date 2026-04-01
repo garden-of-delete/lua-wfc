@@ -114,7 +114,7 @@ function SimpleTiledModel.new(config)
                     if i <= 4 then
                         return (i % 4) + 1
                     else
-                        return ((i - 4 - 1) % 4) + 1 + 4
+                        return ((i - 2) % 4) + 5
                     end
                 end
                 b = function(i) return (i <= 4) and i + 4 or i - 4 end
@@ -266,6 +266,9 @@ function SimpleTiledModel.new(config)
                 if dense_propagator[d][t][t2] then
                     table.insert(self.propagator[d][t], t2)
                 end
+            end
+            if #self.propagator[d][t] == 0 then
+                print(string.format("ERROR: tile %s has no neighbors in direction %d", self.tilenames[t], d))
             end
         end
     end

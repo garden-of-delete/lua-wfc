@@ -16,7 +16,7 @@ local model = SimpleTiledModel.new({
     width = 24,
     height = 24,
     periodic = true,
-    tileset_path = "/Users/rstolz/lua/WaveFunctionCollapse/tilesets"
+    tileset_path = "tilesets"
 })
 
 print(string.format("Model created: %dx%d grid, %d tiles, periodic=%s", 

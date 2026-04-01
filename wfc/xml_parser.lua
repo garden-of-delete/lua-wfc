@@ -20,7 +20,7 @@ end
 function M.parse_string(xml)
     -- Remove XML declaration and comments
     xml = xml:gsub("<%?xml[^%?>]*%?>", "")
-    xml = xml:gsub("<!%-%-.-%%>", "")
+    xml = xml:gsub("<!%-%-.-%-%->", "")
     
     local root = nil
     local stack = {}

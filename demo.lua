@@ -21,7 +21,7 @@ local model1 = SimpleTiledModel.new({
     width = 16,
     height = 16,
     periodic = true,
-    tileset_path = "/Users/rstolz/lua/WaveFunctionCollapse/tilesets"
+    tileset_path = "tilesets"
 })
 
 if model1:run(42, -1) then
@@ -37,7 +37,7 @@ local model2 = OverlappingModel.new({
     width = 32,
     height = 32,
     periodic = false,
-    samples_path = "/Users/rstolz/lua/WaveFunctionCollapse/samples"
+    samples_path = "samples"
 })
 
 if model2:run(42, -1) then

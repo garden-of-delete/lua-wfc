@@ -189,7 +189,7 @@ function OverlappingModel:save(filename)
                     if sy < 0 then sy = sy + self.MY end
                     
                     local s = sx + sy * self.MX + 1
-                    if not self.periodic and (sx + self.N > self.MX or sy + self.N > self.MY or sx < 0 or sy < 0) then
+                    if not self.periodic and (sx + self.N > self.MX or sy + self.N > self.MY) then
                         -- Skip
                     else
                         for t = 1, self.T do

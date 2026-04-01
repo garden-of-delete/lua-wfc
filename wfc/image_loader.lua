@@ -86,69 +86,63 @@ end
 
 -- Save pixel data as PNG/BMP image
 function M.save_png(data, width, height, filename)
-    -- Create BMP file, then convert to PNG using sips
+    -- Create 32-bit BMP file, then convert to PNG using sips
     local bmp_file = os.tmpname() .. ".bmp"
-    
-    -- Calculate row size (must be multiple of 4)
-    local row_size = math.floor((24 * width + 31) / 32) * 4
+
+    -- 32-bit BMP: 4 bytes per pixel, rows already aligned to 4 bytes
+    local row_size = width * 4
     local pixel_data_size = row_size * height
     local file_size = 54 + pixel_data_size  -- 54 = BMP header size
-    
+
     local file = io.open(bmp_file, "wb")
     if not file then
         error("Failed to create BMP file")
     end
-    
+
     -- Write BMP header
     file:write("BM")  -- Signature
     file:write(string.pack("I4", file_size))  -- File size
     file:write(string.pack("I4", 0))  -- Reserved
     file:write(string.pack("I4", 54))  -- Data offset
-    
+
     -- Write DIB header (BITMAPINFOHEADER)
     file:write(string.pack("I4", 40))  -- Header size
     file:write(string.pack("I4", width))  -- Width
     file:write(string.pack("I4", height))  -- Height
     file:write(string.pack("I2", 1))  -- Planes
-    file:write(string.pack("I2", 24))  -- Bits per pixel
+    file:write(string.pack("I2", 32))  -- Bits per pixel (32-bit BGRA)
     file:write(string.pack("I4", 0))  -- Compression (none)
     file:write(string.pack("I4", pixel_data_size))  -- Image size
     file:write(string.pack("I4", 2835))  -- X pixels per meter
     file:write(string.pack("I4", 2835))  -- Y pixels per meter
     file:write(string.pack("I4", 0))  -- Colors in palette
     file:write(string.pack("I4", 0))  -- Important colors
-    
-    -- Write pixel data (bottom-to-top, BGR format)
+
+    -- Write pixel data (bottom-to-top, BGRA format)
     for y = height - 1, 0, -1 do
         for x = 0, width - 1 do
             local idx = x + y * width + 1
             local argb = data[idx]
+            local a = math.floor(argb / 0x1000000) % 0x100
             local r = math.floor(argb / 0x10000) % 0x100
             local g = math.floor(argb / 0x100) % 0x100
             local b = argb % 0x100
-            
-            file:write(string.char(b, g, r))
-        end
-        
-        -- Add row padding
-        local padding = row_size - (width * 3)
-        for i = 1, padding do
-            file:write(string.char(0))
+
+            file:write(string.char(b, g, r, a))
         end
     end
-    
+
     file:close()
-    
-    -- Convert BMP to PNG using sips with no interpolation
-    -- Use -i flag to prevent interpolation/smoothing
+
+    -- Convert BMP to PNG using sips
     local cmd = string.format('sips -s format png -s formatOptions best "%s" --out "%s" 2>/dev/null', bmp_file, filename)
     local result = os.execute(cmd)
     os.remove(bmp_file)
-    
+
     if not result then
         error("Failed to convert BMP to PNG: " .. filename)
     end
-    
+
     return true
 end
 
